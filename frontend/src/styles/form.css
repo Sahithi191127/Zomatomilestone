@@ -38,6 +38,107 @@
   box-shadow: var(--tp-field-shadow-focus);
 }
 
+/* Custom select — theme-aligned menu (native option list can't be styled on Windows) */
+.tp-select-wrap {
+  position: relative;
+}
+
+.tp-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.tp-select-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tp-select-chevron {
+  flex-shrink: 0;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--tp-text-muted);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.tp-select-wrap.is-open .tp-select-chevron {
+  transform: rotate(180deg);
+  color: var(--tp-field-active-text);
+}
+
+.tp-select-wrap.is-open .tp-select-trigger {
+  border-color: var(--tp-field-active-border);
+  box-shadow: var(--tp-field-shadow-focus);
+}
+
+.tp-select-menu {
+  position: absolute;
+  z-index: 100;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  overflow-y: auto;
+  background: var(--tp-surface-raised);
+  border: 1px solid var(--tp-border-strong);
+  border-radius: var(--tp-field-radius);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.48), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  scrollbar-width: thin;
+  scrollbar-color: var(--tp-outline) var(--tp-surface);
+}
+
+.tp-select-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tp-select-menu::-webkit-scrollbar-track {
+  background: var(--tp-surface);
+  border-radius: 4px;
+}
+
+.tp-select-menu::-webkit-scrollbar-thumb {
+  background: var(--tp-outline);
+  border-radius: 4px;
+}
+
+.tp-select-option {
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tp-field-value-text);
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.tp-select-option:hover {
+  background: var(--tp-primary-soft);
+  color: var(--tp-text-heading);
+}
+
+.tp-select-option.is-selected {
+  background: var(--tp-primary-soft);
+  color: var(--tp-field-active-text);
+  font-weight: 600;
+}
+
+.tp-select-option.is-selected:hover {
+  background: rgba(232, 56, 79, 0.22);
+}
+
 .tp-form-card .tp-field-label {
   display: block;
   font-size: 11px;

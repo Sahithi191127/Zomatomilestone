@@ -5,6 +5,7 @@ import {
   RESULT_COUNTS,
 } from "../constants";
 import type { PreferencesPayload } from "../types";
+import { SelectField } from "./SelectField";
 
 interface PreferencesFormProps {
   cities: string[];
@@ -70,19 +71,13 @@ export function PreferencesForm({
           <label className="tp-field-label" htmlFor="location">
             Area
           </label>
-          <select
+          <SelectField
             id="location"
             name="location"
-            className="tp-select"
-            defaultValue={defaultCity}
             required
-          >
-            {cities.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+            defaultValue={defaultCity}
+            options={cities.map((c) => ({ value: c, label: c }))}
+          />
         </div>
         <div className="tp-field">
           <label className="tp-field-label" htmlFor="min_rating">
@@ -136,13 +131,12 @@ export function PreferencesForm({
           <label className="tp-field-label" htmlFor="top_k">
             Number of results
           </label>
-          <select id="top_k" name="top_k" className="tp-select" defaultValue={initial.topK}>
-            {RESULT_COUNTS.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+          <SelectField
+            id="top_k"
+            name="top_k"
+            defaultValue={String(initial.topK)}
+            options={RESULT_COUNTS.map((n) => ({ value: String(n), label: String(n) }))}
+          />
         </div>
       </div>
 
@@ -152,19 +146,13 @@ export function PreferencesForm({
         <label className="tp-field-label" htmlFor="cuisine">
           Preferred cuisines
         </label>
-        <select
+        <SelectField
           id="cuisine"
           name="cuisine"
-          className="tp-select"
-          defaultValue={initial.cuisineLabel}
           required
-        >
-          {cuisineLabels.map((label) => (
-            <option key={label} value={label}>
-              {label}
-            </option>
-          ))}
-        </select>
+          defaultValue={initial.cuisineLabel}
+          options={cuisineLabels.map((label) => ({ value: label, label }))}
+        />
       </div>
 
       <div className="tp-form-gap" />
@@ -189,13 +177,12 @@ export function PreferencesForm({
         <label className="tp-field-label" htmlFor="mood">
           Mood / occasion
         </label>
-        <select id="mood" name="mood" className="tp-select" defaultValue={initial.mood}>
-          {MOOD_OPTIONS.map((m) => (
-            <option key={m.label} value={m.value}>
-              {m.label}
-            </option>
-          ))}
-        </select>
+        <SelectField
+          id="mood"
+          name="mood"
+          defaultValue={initial.mood}
+          options={MOOD_OPTIONS.map((m) => ({ value: m.value, label: m.label }))}
+        />
       </div>
 
       <div className="tp-form-gap tp-form-gap-lg" />
