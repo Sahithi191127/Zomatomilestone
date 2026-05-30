@@ -1,0 +1,3 @@
+# Railway Nixpacks — Python 3.11 (fallback if railway.toml build is overridden)
+[phases.setup]
+nixPkgs = ["python311"]

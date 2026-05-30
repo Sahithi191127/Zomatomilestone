@@ -1,198 +1,125 @@
-# TastePilot — Railway + Vercel Deployment Plan
+# TastePilot — Deploy Backend on Railway + Frontend on Vercel
 
-Deploy the **recommended** TastePilot stack in two parts:
+Step-by-step guide to deploy **TastePilot** as a split stack:
 
-| Host | Service | URL example |
-|------|---------|-------------|
-| **Vercel** | React SPA (`frontend/`) | `https://tastepilot.vercel.app` |
-| **Railway** | FastAPI API (`src/app/api/`) | `https://tastepilot-api.up.railway.app` |
+| Platform | Role | What runs |
+|----------|------|-----------|
+| **[Railway](https://railway.app)** | **Backend** | FastAPI API, Parquet data, Groq LLM, `/images` static |
+| **[Vercel](https://vercel.com)** | **Frontend** | React + Vite SPA (`frontend/`) |
+
+**GitHub repo:** [github.com/Sahithi191127/Zomatomilestone](https://github.com/Sahithi191127/Zomatomilestone)
 
 ```
-Browser → Vercel (static React)
-              ↓ HTTPS /api/v1/*
-         Railway (FastAPI + Parquet + Groq)
+User browser
+    │
+    ▼
+https://your-app.vercel.app          (Vercel — React UI)
+    │
+    │  HTTPS  VITE_API_URL + /api/v1/*
+    ▼
+https://your-api.up.railway.app      (Railway — FastAPI)
+    │
+    ├── restaurants.parquet
+    ├── Groq API (LLM_API_KEY)
+    └── images/ (logo, loading ring, etc.)
 ```
 
-> **Not covered here:** Streamlit-only deploy → see [`deployementplan.md`](./deployementplan.md).
+> **Streamlit UI** (`src/app/main.py`) is **not** used in this deploy path. Use Railway + Vercel for the React app only.
 
 ---
 
-## What you are deploying
-
-### Frontend (Vercel)
-
-| Layer | Technology |
-|--------|------------|
-| UI | React 19 + TypeScript |
-| Build | Vite 6 → static `frontend/dist/` |
-| Dev proxy | `/api` and `/images` → localhost (production must use real API URL) |
+## Architecture summary
 
 ### Backend (Railway)
 
-| Layer | Technology |
-|--------|------------|
-| API | FastAPI + Uvicorn |
-| Entry | `app.api.app:app` |
-| Data | `data/processed/restaurants.parquet` (~5–6 MB) |
-| AI | Groq (`LLM_API_KEY`) |
-| Static | `/images` from repo `images/` |
+| Item | Detail |
+|------|--------|
+| Framework | FastAPI + Uvicorn |
+| App module | `app.api.app:app` |
+| Routes | `/api/v1/health`, `/api/v1/metadata/*`, `/api/v1/recommendations` |
+| Config | `railway.toml`, `requirements-api.txt`, `Procfile` |
+| Data | `data/processed/restaurants.parquet` (committed in repo) |
+| Secrets | `LLM_API_KEY`, `CORS_ORIGINS` (Railway variables only) |
 
-Local reference:
+### Frontend (Vercel)
+
+| Item | Detail |
+|------|--------|
+| Framework | React 19 + TypeScript + Vite 6 |
+| Root directory | `frontend/` |
+| Build output | `frontend/dist/` |
+| API wiring | `VITE_API_URL` → `frontend/src/api/config.ts` |
+| SPA routing | `frontend/vercel.json` |
+
+### Local dev (unchanged)
 
 ```powershell
 .\scripts\run_dev.ps1
-# API: http://127.0.0.1:8000  |  UI: http://localhost:5173
+# UI:  http://localhost:5173
+# API: http://127.0.0.1:8000
 ```
+
+Leave `VITE_API_URL` empty locally — Vite proxies `/api` and `/images` to port 8000.
 
 ---
 
 ## Prerequisites
 
-1. **GitHub** — repo pushed (Vercel + Railway connect via GitHub).
-2. **Vercel account** — [vercel.com](https://vercel.com)
-3. **Railway account** — [railway.app](https://railway.app)
-4. **Groq API key** — [console.groq.com](https://console.groq.com/) (recommended; fallback works without it)
-5. **Restaurant data** — commit `data/processed/restaurants.parquet` (see [Data strategy](#data-strategy))
+1. Code on GitHub: [Sahithi191127/Zomatomilestone](https://github.com/Sahithi191127/Zomatomilestone) (includes `restaurants.parquet`).
+2. [Railway](https://railway.app) account (GitHub login).
+3. [Vercel](https://vercel.com) account (GitHub login).
+4. [Groq API key](https://console.groq.com/) — recommended for AI rankings (fallback works without it).
 
 ---
 
-## Required code / config changes (before deploy)
+## Already configured in this repo
 
-The repo is set up for **local dev** (Vite proxy + localhost CORS). For production, apply these **once** before or during first deploy:
+You do **not** need extra code changes before deploy. The repo includes:
 
-### 1. Frontend — API base URL
-
-Vite’s dev proxy does **not** run on Vercel. Point the React app at the Railway API.
-
-**A. Environment variable**
-
-```bash
-# Vercel project → Settings → Environment Variables
-VITE_API_URL=https://YOUR-RAILWAY-APP.up.railway.app
-```
-
-**B. Update `frontend/src/api/client.ts`**
-
-Use a shared base for all `fetch` calls, e.g.:
-
-```typescript
-const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
-
-function apiUrl(path: string): string {
-  return `${API_BASE}${path}`;
-}
-
-// fetch(apiUrl("/api/v1/health")) ...
-```
-
-**C. Logo / images**
-
-`LOGO_SRC = "/images/..."` works in dev via proxy. In production, either:
-
-- `VITE_API_URL + "/images/tastepilot-logo-dark.png"`, or  
-- Host images on Vercel (`frontend/public/images/`) and keep `/images/...` relative to the SPA origin.
-
-### 2. Backend — CORS
-
-`src/app/api/app.py` currently allows only `localhost:5173`. Add your Vercel URL(s):
-
-```python
-# Prefer reading from env, e.g. CORS_ORIGINS=https://tastepilot.vercel.app,https://tastepilot-*.vercel.app
-```
-
-Set on Railway:
-
-```bash
-CORS_ORIGINS=https://tastepilot.vercel.app,https://your-preview-url.vercel.app
-```
-
-Include **preview** URLs if you use Vercel PR previews.
-
-### 3. Backend — listen on `$PORT`
-
-Railway assigns a dynamic port. Start command must use it:
-
-```bash
-uvicorn app.api.app:app --host 0.0.0.0 --port ${PORT:-8000}
-```
-
-Do **not** use `reload=True` in production.
-
-### 4. Backend — `PYTHONPATH`
-
-Railway build/run must see `src` as the package root:
-
-```bash
-PYTHONPATH=src
-```
-
-### 5. Optional — slim production requirements
-
-`requirements.txt` includes Streamlit; Railway can install everything, or you add `requirements-api.txt` without `streamlit` for faster builds.
+| Feature | File(s) |
+|---------|---------|
+| API base URL for production | `frontend/src/api/config.ts`, `frontend/src/api/client.ts` |
+| Assets (logo, ring) | `assetUrl()` + `frontend/public/images/` fallback on Vercel |
+| CORS + Vercel previews | `CORS_ORIGINS` env + `https://*.vercel.app` regex |
+| Railway port + no hot reload | `src/app/api/main.py`, `railway.toml` |
+| Slim API dependencies | `requirements-api.txt` |
+| Optional Docker build | `Dockerfile` |
+| Vercel SPA config | `frontend/vercel.json`, Node ≥ 18 in `package.json` |
+| Missing `VITE_API_URL` warning | `vite.config.ts` build warn, `App.tsx` alert |
+| API root metadata | `GET /` on Railway |
+| Env templates | `.env.example`, `frontend/.env.example` |
 
 ---
 
-## Data strategy
+## Deployment order (follow this sequence)
 
-### Recommended — commit Parquet
-
-1. Locally (once):
-
-   ```powershell
-   $env:PYTHONPATH = "src"
-   python -m app.ingest
-   ```
-
-2. Commit `data/processed/restaurants.parquet` (~5–6 MB).
-
-3. Railway deploy loads from `DATA_PATH` (resolved to repo root via `app.config.PROJECT_ROOT`).
-
-### Not recommended on Railway free tier
-
-- First-boot Hugging Face ingest (~574 MB) — slow, may OOM or timeout.
+1. **Deploy Railway (backend)** → copy public API URL  
+2. **Deploy Vercel (frontend)** → set `VITE_API_URL` to Railway URL  
+3. **Update Railway `CORS_ORIGINS`** with your Vercel URL → redeploy API  
+4. **Smoke-test** production  
 
 ---
 
-## Part 1 — Deploy API on Railway
+# Part 1 — Backend on Railway
 
-### Step 1 — New project
+## 1. Create the Railway project
 
-1. Railway → **New Project** → **Deploy from GitHub repo**.
-2. Select this repository.
+1. Go to [railway.app](https://railway.app) → **New Project**.
+2. **Deploy from GitHub repo** → select **Zomatomilestone**.
+3. Railway creates a service from the repo root.
 
-### Step 2 — Service settings
+## 2. Confirm Railway reads `railway.toml`
 
-| Setting | Value |
-|---------|--------|
-| **Root directory** | `/` (repo root) |
-| **Builder** | Nixpacks (default) or Dockerfile |
-
-### Step 3 — Start command
-
-**Settings → Deploy → Start Command:**
-
-```bash
-uvicorn app.api.app:app --host 0.0.0.0 --port $PORT
-```
-
-**Settings → Variables:**
-
-| Variable | Required | Example |
-|----------|----------|---------|
-| `PYTHONPATH` | Yes | `src` |
-| `LLM_API_KEY` | Recommended | `gsk_...` |
-| `DATA_PATH` | Optional | `data/processed/restaurants.parquet` |
-| `CORS_ORIGINS` | Yes (after Vercel URL known) | `https://tastepilot.vercel.app` |
-| `LLM_MODEL` | Optional | `llama-3.3-70b-versatile` |
-| `BUDGET_LOW_MAX` | Optional | `500` |
-| `BUDGET_MEDIUM_MAX` | Optional | `1500` |
-| `MAX_CANDIDATES` | Optional | `30` |
-
-### Step 4 — Optional `railway.toml` (repo root)
+The repo root contains:
 
 ```toml
+# railway.toml (already in repo)
+[env]
+PYTHONPATH = "src"
+
 [build]
 builder = "nixpacks"
+buildCommand = "pip install -r requirements-api.txt"
 
 [deploy]
 startCommand = "uvicorn app.api.app:app --host 0.0.0.0 --port $PORT"
@@ -201,244 +128,267 @@ healthcheckTimeout = 120
 restartPolicyType = "on_failure"
 ```
 
-### Step 5 — Optional `Procfile` (repo root)
-
-```
-web: uvicorn app.api.app:app --host 0.0.0.0 --port ${PORT:-8000}
-```
-
-(Set `PYTHONPATH=src` in Railway variables, not in Procfile, unless your platform supports it.)
-
-### Step 6 — Optional `Dockerfile` (more control)
-
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY src ./src
-COPY data ./data
-COPY images ./images
-
-ENV PYTHONPATH=src
-ENV DATA_PATH=data/processed/restaurants.parquet
-
-EXPOSE 8000
-CMD uvicorn app.api.app:app --host 0.0.0.0 --port ${PORT:-8000}
-```
-
-In Railway: **Settings → Builder → Dockerfile**.
-
-### Step 7 — Verify API
-
-After deploy, open:
-
-```text
-https://YOUR-SERVICE.up.railway.app/api/v1/health
-```
-
-Expected JSON:
-
-```json
-{ "status": "ok", "restaurants_loaded": 24711 }
-```
-
-If `restaurants_loaded` is `0`, fix `DATA_PATH` or commit Parquet.
-
-Docs (optional): `https://YOUR-SERVICE.up.railway.app/docs`
-
----
-
-## Part 2 — Deploy UI on Vercel
-
-### Step 1 — New project
-
-1. Vercel → **Add New** → **Project** → import GitHub repo.
-2. **Root Directory:** `frontend`
-3. **Framework Preset:** Vite
-
-### Step 2 — Build settings
+If the dashboard overrides this, align manually:
 
 | Setting | Value |
 |---------|--------|
+| **Root directory** | `/` (repository root) |
+| **Start command** | `uvicorn app.api.app:app --host 0.0.0.0 --port $PORT` |
+| **Build** | `pip install -r requirements-api.txt` |
+
+## 3. Set Railway environment variables
+
+**Service → Variables** (or **Shared Variables**):
+
+| Variable | Required | Value |
+|----------|----------|--------|
+| `PYTHONPATH` | Yes* | `src` (*also set in `railway.toml`*) |
+| `LLM_API_KEY` | Recommended | Your Groq key (`gsk_...`) |
+| `CORS_ORIGINS` | After Vercel deploy | `https://YOUR-APP.vercel.app` (comma-separated for previews) |
+| `DATA_PATH` | Optional | `data/processed/restaurants.parquet` (default) |
+| `LLM_MODEL` | Optional | `llama-3.3-70b-versatile` |
+
+**Do not** set `PORT` — Railway injects it automatically.
+
+Example `CORS_ORIGINS` once Vercel is live:
+
+```bash
+CORS_ORIGINS=https://zomatomilestone.vercel.app,https://zomatomilestone-git-main-sahithi191127.vercel.app
+```
+
+Use your **exact** Vercel production and preview URLs from the Vercel dashboard.
+
+## 4. Generate a public domain
+
+1. Railway service → **Settings** → **Networking** → **Generate domain**.
+2. Copy the URL, e.g. `https://zomatomilestone-production.up.railway.app`.
+3. Save this — you need it for `VITE_API_URL` on Vercel.
+
+## 5. Verify the backend
+
+Open in a browser or curl:
+
+```text
+https://YOUR-RAILWAY-DOMAIN.up.railway.app/api/v1/health
+```
+
+Expected:
+
+```json
+{
+  "status": "ok",
+  "restaurants_loaded": 24711
+}
+```
+
+| Result | Action |
+|--------|--------|
+| `restaurants_loaded: 0` | Parquet missing on deploy — confirm `data/processed/restaurants.parquet` is in GitHub |
+| 502 / crash | Open **Deployments → Logs**; check `PYTHONPATH=src` and start command |
+| 404 on `/health` | Use `/api/v1/health` (not `/health`) |
+
+Optional API docs: `https://YOUR-RAILWAY-DOMAIN/docs`
+
+---
+
+# Part 2 — Frontend on Vercel
+
+## 1. Import the GitHub project
+
+1. [vercel.com](https://vercel.com) → **Add New** → **Project**.
+2. Import **Sahithi191127/Zomatomilestone**.
+
+## 2. Configure the project (critical)
+
+| Setting | Value |
+|---------|--------|
+| **Framework Preset** | Vite |
+| **Root Directory** | `frontend` |
 | **Build Command** | `npm run build` |
 | **Output Directory** | `dist` |
 | **Install Command** | `npm install` |
 
-### Step 3 — Environment variables
+## 3. Set environment variables
+
+**Settings → Environment Variables:**
 
 | Name | Value | Environments |
 |------|--------|----------------|
-| `VITE_API_URL` | `https://YOUR-SERVICE.up.railway.app` | Production, Preview, Development |
+| `VITE_API_URL` | `https://YOUR-RAILWAY-DOMAIN.up.railway.app` | Production, Preview, Development |
 
-No trailing slash. Redeploy after changing.
+Rules:
 
-### Step 4 — Optional `frontend/vercel.json`
+- **No trailing slash** on the Railway URL.
+- **Redeploy** after changing `VITE_API_URL` (it is baked in at build time).
 
-SPA fallback + security headers:
+Example:
 
-```json
-{
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }]
-    }
-  ]
-}
+```bash
+VITE_API_URL=https://zomatomilestone-production.up.railway.app
 ```
 
-API calls go to `VITE_API_URL` (full URL), not Vercel rewrites — unless you add a reverse proxy rewrite (advanced).
+## 4. Deploy
 
-### Step 5 — Update Railway CORS
+Click **Deploy**. Vercel runs `npm run build` in `frontend/` and hosts `dist/`.
 
-After Vercel gives you a URL, add it to Railway `CORS_ORIGINS` and redeploy the API.
+Your app URL will look like:
 
-### Step 6 — Verify UI
+```text
+https://zomatomilestone.vercel.app
+```
 
-1. Open `https://your-app.vercel.app`
-2. Form loads areas/cuisines (metadata from Railway).
-3. Submit search → loading → results or empty state.
-4. Logo loads (check Network tab for `/images/...` or full API URL).
+(or a similar `*.vercel.app` subdomain)
+
+## 5. Connect CORS on Railway
+
+1. Copy your **production** Vercel URL from the Vercel dashboard.
+2. Railway → **Variables** → set `CORS_ORIGINS` to that URL (add preview URLs if needed).
+3. **Redeploy** the Railway service.
+
+## 6. Verify the frontend
+
+1. Open your Vercel URL.
+2. Home form loads **areas** and **cuisines** (calls Railway metadata).
+3. Submit preferences → loading → results or empty state.
+4. DevTools → Network: API requests go to `https://YOUR-RAILWAY-DOMAIN.../api/v1/...`
+5. Logo/images load from `https://YOUR-RAILWAY-DOMAIN.../images/...`
 
 ---
 
-## Environment variable reference
+## Environment variables (complete reference)
 
-### Railway (backend)
+### Railway — backend only
 
 | Key | Purpose |
 |-----|---------|
-| `PYTHONPATH` | `src` — import `app.*` |
-| `PORT` | Set by Railway (do not hardcode) |
-| `LLM_API_KEY` | Groq secret |
-| `DATA_PATH` | Parquet path (default under repo root) |
-| `CORS_ORIGINS` | Comma-separated Vercel origins |
+| `PYTHONPATH` | `src` — Python imports `app.*` |
+| `PORT` | Injected by Railway — do not set manually |
+| `LLM_API_KEY` | Groq API key (server-side secret) |
+| `CORS_ORIGINS` | Comma-separated frontend origins (Vercel URLs) |
+| `DATA_PATH` | Parquet file path (default: `data/processed/restaurants.parquet`) |
 | `LLM_MODEL` | Groq model id |
-| `BUDGET_LOW_MAX` / `BUDGET_MEDIUM_MAX` | Price bands |
-| `MAX_CANDIDATES` | LLM candidate cap |
+| `BUDGET_LOW_MAX` / `BUDGET_MEDIUM_MAX` | Price band thresholds |
+| `MAX_CANDIDATES` | Max restaurants sent to LLM |
 
-### Vercel (frontend)
+### Vercel — frontend only
 
 | Key | Purpose |
 |-----|---------|
-| `VITE_API_URL` | Railway API origin (build-time) |
+| `VITE_API_URL` | Railway API origin (required in production) |
 
-Never put `LLM_API_KEY` on Vercel — it must stay on Railway only.
-
----
-
-## Deployment order
-
-1. Commit Parquet + any code changes (API base URL, CORS, `$PORT`).
-2. **Deploy Railway** → note public URL.
-3. Set `VITE_API_URL` on Vercel → **deploy Vercel**.
-4. Set `CORS_ORIGINS` on Railway with Vercel URL → **redeploy Railway**.
-5. Smoke-test production.
+**Never** put `LLM_API_KEY` on Vercel.
 
 ---
 
 ## Repository layout (deploy-relevant)
 
 ```text
-ZOMATOMILESTONE/
-├── requirements.txt          # Railway pip install
-├── runtime.txt               # Optional Python pin (Streamlit/Railway)
-├── railway.toml              # Optional Railway config
-├── Dockerfile                  # Optional Railway Docker build
+Zomatomilestone/                    ← Railway deploys from here
+├── railway.toml                    ← Railway config (committed)
+├── requirements-api.txt            ← Railway pip install
+├── Procfile                        ← Alternate start command
+├── runtime.txt                     ← Python 3.11 pin
 ├── data/processed/
-│   └── restaurants.parquet   # Commit for fast API boot
-├── images/                   # API serves /images/*
-├── src/
-│   └── app/
-│       ├── api/
-│       │   ├── app.py        # FastAPI + CORS
-│       │   └── routes.py     # /api/v1/*
-│       └── config.py         # PROJECT_ROOT, DATA_PATH
-└── frontend/
-    ├── package.json
-    ├── vite.config.ts        # Dev proxy only
-    ├── vercel.json           # Optional
-    └── src/api/client.ts     # Needs VITE_API_URL in prod
+│   └── restaurants.parquet         ← Required for API
+├── images/                         ← Served at /images/*
+└── src/app/api/                    ← FastAPI app
+
+frontend/                           ← Vercel root directory
+├── package.json
+├── vercel.json
+├── .env.example                    ← VITE_API_URL template
+└── src/api/
+    ├── config.ts                   ← API_BASE, apiUrl(), assetUrl()
+    └── client.ts                   ← fetch wrappers
 ```
 
 ---
 
 ## Troubleshooting
 
-| Symptom | Likely cause | Fix |
-|---------|----------------|-----|
-| CORS error in browser | Vercel origin not in `CORS_ORIGINS` | Add exact URL; redeploy API |
-| `Failed to fetch` / 404 on API | Wrong `VITE_API_URL` or not rebuilt | Fix env; redeploy Vercel |
-| `restaurants_loaded: 0` | Missing Parquet on Railway | Commit file or fix `DATA_PATH` |
-| 502 / crash on Railway | OOM, bad start command | Check logs; use `--port $PORT`, no reload |
-| Logo broken | Relative `/images` hits Vercel | Prefix with `VITE_API_URL` or use `public/` |
-| AI always fallback | Missing `LLM_API_KEY` on Railway | Add secret; redeploy |
-| Preview deploy broken | Preview URL not in CORS | Add `https://*-*.vercel.app` pattern or each preview URL |
-| Slow cold start | Free tier sleep | Upgrade or accept first-hit delay |
+| Symptom | Platform | Fix |
+|---------|----------|-----|
+| CORS error in browser console | Both | Add exact Vercel URL to Railway `CORS_ORIGINS`; redeploy API |
+| `Failed to fetch` / network error | Vercel | Wrong `VITE_API_URL`; rebuild after fixing |
+| API calls go to `localhost` | Vercel | `VITE_API_URL` not set for Production; redeploy |
+| `restaurants_loaded: 0` | Railway | Parquet not in repo or wrong `DATA_PATH` |
+| 502 / service crash | Railway | Check logs; memory ≥ 512MB; confirm `$PORT` in start command |
+| Logo / images 404 | Vercel | Should load from Railway (`assetUrl`); verify `VITE_API_URL` |
+| AI always uses fallback | Railway | Set `LLM_API_KEY`; redeploy |
+| Preview deploy CORS fails | Railway | Add preview URL to `CORS_ORIGINS` |
+| Build fails on Vercel | Vercel | Root directory must be `frontend`; Node 18+ |
+| `ModuleNotFoundError: app` | Railway | `PYTHONPATH=src` |
 
 **Logs**
 
-- Railway: Project → Service → **Deployments** → **View logs**
-- Vercel: Project → **Deployments** → build/runtime logs
+- Railway: Service → **Deployments** → **View logs**
+- Vercel: Project → **Deployments** → build log
 
 ---
 
-## Security
+## Security checklist
 
-- Keep `LLM_API_KEY` only on Railway.
-- Do not commit `.env`.
-- Restrict `CORS_ORIGINS` to your Vercel domains (avoid `*` in production).
-- Rotate Groq keys if exposed.
-- Consider Railway/Vercel team access and branch protection on `main`.
-
----
-
-## Cost & limits (typical hobby tier)
-
-| Platform | Notes |
-|----------|--------|
-| **Vercel** | Generous static hosting; bandwidth limits on free tier |
-| **Railway** | Usage-based credits; Parquet + pandas needs ~512MB–1GB RAM recommended |
-| **Groq** | Separate API usage limits |
+- [ ] `.env` is **not** committed (in `.gitignore`)
+- [ ] `LLM_API_KEY` only on Railway
+- [ ] `CORS_ORIGINS` lists only your Vercel domains (not `*`)
+- [ ] Groq key rotated if ever exposed
 
 ---
 
-## Alternatives
+## Cost notes (hobby / student tier)
 
-| Approach | When |
-|----------|------|
-| **Render** instead of Railway | Same FastAPI deploy; use `PORT` + start command |
-| **Netlify / Cloudflare Pages** instead of Vercel | Same static `dist`; set `VITE_API_URL` |
-| **Single Railway service** | Build React into `dist/`, mount static in FastAPI — one URL, no CORS |
-| **Streamlit Cloud** | Legacy UI only — see `deployementplan.md` |
+| Platform | Typical use |
+|----------|-------------|
+| **Vercel** | Static hosting; free tier for personal projects |
+| **Railway** | Usage-based credits; recommend ≥ 512MB RAM for pandas + Parquet |
+| **Groq** | Separate API quota |
+
+---
+
+## Go-live checklist
+
+### Railway (backend)
+
+- [ ] GitHub repo connected
+- [ ] Deploy succeeded; health URL returns `restaurants_loaded > 0`
+- [ ] Public domain generated
+- [ ] `LLM_API_KEY` set
+- [ ] `CORS_ORIGINS` includes Vercel production URL
+
+### Vercel (frontend)
+
+- [ ] Root directory = `frontend`
+- [ ] `VITE_API_URL` = Railway public URL (no trailing slash)
+- [ ] Production deploy succeeded
+- [ ] Form loads metadata; search returns results
+
+### End-to-end
+
+- [ ] No CORS errors in browser DevTools
+- [ ] API requests hit `*.railway.app`
+- [ ] Images load from Railway `/images/`
 
 ---
 
 ## Quick reference
 
-| Item | Value |
-|------|--------|
-| Frontend host | Vercel (`frontend/`) |
-| Backend host | Railway (repo root, `PYTHONPATH=src`) |
-| API health | `GET /api/v1/health` |
+| Question | Answer |
+|----------|--------|
+| Where is the backend? | **Railway** — repo root, FastAPI |
+| Where is the frontend? | **Vercel** — `frontend/` directory |
+| GitHub repo | https://github.com/Sahithi191127/Zomatomilestone |
+| API health check | `GET /api/v1/health` on Railway URL |
 | Vercel env | `VITE_API_URL` |
 | Railway env | `LLM_API_KEY`, `CORS_ORIGINS`, `PYTHONPATH=src` |
-| Data | `data/processed/restaurants.parquet` |
-| Local dev | `.\scripts\run_dev.ps1` |
+| Deploy order | Railway → Vercel → CORS → test |
 
 ---
 
-## Checklist (copy before go-live)
+## Alternatives (not this guide)
 
-- [ ] `restaurants.parquet` committed
-- [ ] `frontend/src/api/client.ts` uses `VITE_API_URL`
-- [ ] `VITE_API_URL` set on Vercel
-- [ ] Railway start command uses `$PORT` and `PYTHONPATH=src`
-- [ ] `LLM_API_KEY` set on Railway
-- [ ] `CORS_ORIGINS` includes production (and preview) Vercel URLs
-- [ ] Health check returns `restaurants_loaded > 0`
-- [ ] End-to-end search works on production URL
+| Option | Notes |
+|--------|--------|
+| **Render** instead of Railway | Same FastAPI setup; use `$PORT` + `PYTHONPATH=src` |
+| **Netlify / Cloudflare Pages** instead of Vercel | Same `dist` build; set `VITE_API_URL` |
+| **Single Railway service** | Serve React `dist` from FastAPI — one URL, no CORS |
+| **Streamlit Cloud** | Legacy `src/app/main.py` UI — separate deploy path |

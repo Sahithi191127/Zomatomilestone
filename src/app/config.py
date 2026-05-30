@@ -33,6 +33,8 @@ class Settings(BaseSettings):
 
     # Comma-separated origins for FastAPI CORS (e.g. Vercel production + preview URLs)
     cors_origins: str = ""
+    # Allow https://*.vercel.app when deploying frontend on Vercel (PR previews)
+    cors_allow_vercel_previews: bool = True
 
     @field_validator("data_path", mode="before")
     @classmethod

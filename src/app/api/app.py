@@ -10,10 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
-from app.config import get_cors_origins
+from app.config import PROJECT_ROOT, get_cors_origins, settings
 from app.dependencies import get_repository
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
 IMAGES_DIR = PROJECT_ROOT / "images"
 
 
@@ -33,13 +32,24 @@ def create_app() -> FastAPI:
         version="1.0.0",
         lifespan=lifespan,
     )
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=get_cors_origins(),
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    cors_kwargs: dict = {
+        "allow_origins": get_cors_origins(),
+        "allow_credentials": True,
+        "allow_methods": ["*"],
+        "allow_headers": ["*"],
+    }
+    if settings.cors_allow_vercel_previews:
+        cors_kwargs["allow_origin_regex"] = r"https://.*\.vercel\.app"
+    app.add_middleware(CORSMiddleware, **cors_kwargs)
+
+    @app.get("/", tags=["meta"])
+    def api_root() -> dict[str, str]:
+        return {
+            "service": "TastePilot API",
+            "health": "/api/v1/health",
+            "docs": "/docs",
+        }
+
     app.include_router(router)
     if IMAGES_DIR.is_dir():
         app.mount("/images", StaticFiles(directory=str(IMAGES_DIR)), name="images")

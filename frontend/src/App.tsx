@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isProductionApiMissing } from "./api/config";
 import {
   cuisineOptions,
   fetchCuisines,
@@ -120,11 +121,19 @@ export default function App() {
         <Nav />
         {(phase === "home" || phase === "error" || phase === "data_unavailable") && <Hero />}
 
-        {phase === "data_unavailable" && (
+        {isProductionApiMissing && (
+          <Alert
+            kind="error"
+            title="API not configured"
+            body="Set VITE_API_URL to your Railway API URL in Vercel → Settings → Environment Variables, then redeploy."
+          />
+        )}
+
+        {phase === "data_unavailable" && !isProductionApiMissing && (
           <Alert
             kind="error"
             title="Data unavailable"
-            body="We could not load the restaurant catalog. Check your data path and try again."
+            body="We could not load the restaurant catalog. Check that the Railway API is running and restaurants.parquet is deployed."
             onRetry={() => {
               loadMetadata();
               setPhase("home");
