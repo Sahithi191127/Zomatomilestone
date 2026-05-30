@@ -1,0 +1,120 @@
+/**
+ * TastePilot — bordered inputs inside the single form card only.
+ * Per-side borders beat Streamlit 1.57 inline combobox styles.
+ */
+
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stSelectbox"] [data-baseweb="select"] [role="combobox"],
+.stApp [data-testid="stVerticalBlockBorderWrapper"] .stSelectbox [data-baseweb="select"] [role="combobox"],
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextInputRootElement"],
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextAreaRootElement"],
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextArea"] > div > div {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    background-color: var(--tp-field-bg, #fffdfb) !important;
+    border-top-width: 1px !important;
+    border-right-width: 1px !important;
+    border-bottom-width: 1px !important;
+    border-left-width: 1px !important;
+    border-top-style: solid !important;
+    border-right-style: solid !important;
+    border-bottom-style: solid !important;
+    border-left-style: solid !important;
+    border-top-color: var(--tp-field-border, #d4a8a6) !important;
+    border-right-color: var(--tp-field-border, #d4a8a6) !important;
+    border-bottom-color: var(--tp-field-border, #d4a8a6) !important;
+    border-left-color: var(--tp-field-border, #d4a8a6) !important;
+    border-radius: var(--tp-field-radius, 0.5rem) !important;
+    box-shadow: var(--tp-field-shadow) !important;
+    outline: none !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stSelectbox"] [data-baseweb="select"] [role="combobox"],
+.stApp [data-testid="stVerticalBlockBorderWrapper"] .stSelectbox [data-baseweb="select"] [role="combobox"] {
+    min-height: var(--tp-field-height, 44px) !important;
+    padding: 0 var(--tp-field-pad-x, 14px) !important;
+}
+
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextAreaRootElement"],
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextArea"] > div > div {
+    min-height: 72px !important;
+}
+
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextInputRootElement"] {
+    min-height: var(--tp-field-height, 44px) !important;
+}
+
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stSelectbox"] [data-baseweb="select"] {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stSelectbox"] [data-baseweb="select"] [role="combobox"] > div,
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextInput"] input,
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextArea"] textarea {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Hover */
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stSelectbox"]:hover [data-baseweb="select"] [role="combobox"],
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextInput"]:hover [data-testid="stTextInputRootElement"],
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextArea"]:hover [data-testid="stTextAreaRootElement"],
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextArea"]:hover > div > div {
+    border-top-color: var(--tp-field-border-hover, #c49290) !important;
+    border-right-color: var(--tp-field-border-hover, #c49290) !important;
+    border-bottom-color: var(--tp-field-border-hover, #c49290) !important;
+    border-left-color: var(--tp-field-border-hover, #c49290) !important;
+    background-color: var(--tp-field-hover-bg, #fff6f4) !important;
+    box-shadow: var(--tp-field-shadow-hover) !important;
+}
+
+/* Focus — coral/red ring */
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stSelectbox"]:focus-within [data-baseweb="select"] [role="combobox"],
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextInput"]:focus-within [data-testid="stTextInputRootElement"],
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextArea"]:focus-within [data-testid="stTextAreaRootElement"],
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stTextArea"]:focus-within > div > div {
+    border-top-color: var(--tp-field-active-border, #b7122a) !important;
+    border-right-color: var(--tp-field-active-border, #b7122a) !important;
+    border-bottom-color: var(--tp-field-active-border, #b7122a) !important;
+    border-left-color: var(--tp-field-active-border, #b7122a) !important;
+    background-color: var(--tp-field-bg, #fffdfb) !important;
+    box-shadow: var(--tp-field-shadow-focus) !important;
+}
+
+/* Budget radio — soft field tray (matches select confidence) */
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stRadio"] [role="radiogroup"] {
+    background-color: var(--tp-field-bg, #fffdfb) !important;
+    border-top-width: 1px !important;
+    border-right-width: 1px !important;
+    border-bottom-width: 1px !important;
+    border-left-width: 1px !important;
+    border-style: solid !important;
+    border-color: var(--tp-field-border, #d4a8a6) !important;
+    border-radius: var(--tp-field-radius, 0.5rem) !important;
+    box-shadow: var(--tp-field-shadow) !important;
+    padding: 0.7rem 1rem !important;
+    min-height: var(--tp-field-height, 44px) !important;
+    box-sizing: border-box !important;
+}
+
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stRadio"]:hover [role="radiogroup"] {
+    border-color: var(--tp-field-border-hover, #c49290) !important;
+    background-color: var(--tp-field-hover-bg, #fff6f4) !important;
+    box-shadow: var(--tp-field-shadow-hover) !important;
+}
+
+.stApp [data-testid="stVerticalBlockBorderWrapper"] [data-testid="stRadio"]:focus-within [role="radiogroup"] {
+    border-color: var(--tp-field-active-border, #b7122a) !important;
+    box-shadow: var(--tp-field-shadow-focus) !important;
+}

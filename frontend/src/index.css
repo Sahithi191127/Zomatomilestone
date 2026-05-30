@@ -1,0 +1,129 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap");
+
+@import "./styles/theme.css";
+@import "./styles/form.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "DM Sans", sans-serif;
+  background: var(--tp-bg);
+  color: var(--tp-text);
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tp-app {
+  position: relative;
+  min-height: 100vh;
+  background: var(--tp-bg);
+  color: var(--tp-text);
+}
+
+.tp-page {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 1rem 3.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.tp-form-card {
+  background: var(--tp-form-card-bg);
+  border: 1px solid var(--tp-form-card-border);
+  border-radius: 1rem;
+  padding: 1.65rem 1.75rem 1.5rem;
+  box-shadow: var(--tp-form-card-shadow);
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.tp-results-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 4rem;
+}
+
+@media (max-width: 960px) {
+  .tp-results-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tp-expander {
+  max-width: 720px;
+  margin: 0 auto 3rem;
+  background: var(--tp-surface);
+  border: 1px solid var(--tp-border-strong);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.tp-expander summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 18px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--tp-text-heading);
+}
+
+.tp-expander summary::-webkit-details-marker {
+  display: none;
+}
+
+.tp-expander-body {
+  padding: 0 18px 14px;
+}
+
+.tp-results-cta {
+  max-width: 720px;
+  margin: 0 auto 1.25rem;
+}
+
+.tp-results-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  max-width: 720px;
+  margin: 0 auto 2rem;
+}
+
+.tp-btn-secondary {
+  min-height: 44px;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  background: var(--tp-surface-raised);
+  color: var(--tp-text);
+  border: 1px solid var(--tp-border-strong);
+}
+
+.tp-btn-ghost {
+  min-height: 44px;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--tp-primary);
+  border: none;
+}

@@ -1,0 +1,13 @@
+# TastePilot API — https://docs.railway.app/reference/config-as-code
+[env]
+PYTHONPATH = "src"
+
+[build]
+builder = "nixpacks"
+buildCommand = "pip install -r requirements-api.txt"
+
+[deploy]
+startCommand = "uvicorn app.api.app:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/api/v1/health"
+healthcheckTimeout = 120
+restartPolicyType = "on_failure"

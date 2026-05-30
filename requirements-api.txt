@@ -1,0 +1,10 @@
+# Railway / production API (no Streamlit UI)
+datasets>=2.18.0
+pandas>=2.1.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+python-dotenv>=1.0.0
+pyarrow>=14.0.0
+groq>=0.11.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0

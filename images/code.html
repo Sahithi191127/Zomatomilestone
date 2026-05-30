@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TastePilot - Find Your Perfect Bite</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-error-container": "#93000a",
+                "on-secondary-fixed-variant": "#5f4100",
+                "on-background": "#1a1c1c",
+                "error-container": "#ffdad6",
+                "surface-container-highest": "#e2e2e2",
+                "surface-container-high": "#e8e8e8",
+                "primary-fixed-dim": "#ffb3b1",
+                "on-secondary-container": "#6e4c00",
+                "on-primary": "#ffffff",
+                "inverse-surface": "#2f3131",
+                "tertiary-fixed-dim": "#c8c6c6",
+                "primary": "#b7122a",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-fixed-variant": "#92001c",
+                "on-surface-variant": "#5b403f",
+                "surface-container": "#eeeeee",
+                "tertiary-container": "#757474",
+                "on-tertiary": "#ffffff",
+                "on-tertiary-container": "#fffcfb",
+                "surface-container-low": "#f3f3f3",
+                "on-secondary-fixed": "#281900",
+                "inverse-primary": "#ffb3b1",
+                "surface-tint": "#bb162c",
+                "secondary-fixed-dim": "#ffba34",
+                "on-primary-container": "#fffbff",
+                "on-secondary": "#ffffff",
+                "secondary-container": "#ffba34",
+                "tertiary": "#5c5c5c",
+                "on-error": "#ffffff",
+                "secondary-fixed": "#ffdeab",
+                "background": "#f9f9f9",
+                "tertiary-fixed": "#e4e2e1",
+                "outline": "#8f6f6e",
+                "primary-fixed": "#ffdad8",
+                "on-tertiary-fixed": "#1b1c1c",
+                "outline-variant": "#e4bebc",
+                "primary-container": "#db313f",
+                "on-tertiary-fixed-variant": "#474747",
+                "surface-variant": "#e2e2e2",
+                "on-primary-fixed": "#410007",
+                "on-surface": "#1a1c1c",
+                "surface-bright": "#f9f9f9",
+                "inverse-on-surface": "#f1f1f1",
+                "surface": "#f9f9f9",
+                "surface-dim": "#dadada",
+                "secondary": "#7e5700",
+                "error": "#ba1a1a"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "unit": "8px",
+                "gutter": "24px",
+                "margin-desktop": "48px",
+                "container-max": "1200px",
+                "margin-mobile": "16px"
+        },
+        "fontFamily": {
+                "body-md": [
+                        "DM Sans"
+                ],
+                "body-lg": [
+                        "DM Sans"
+                ],
+                "headline-md": [
+                        "DM Sans"
+                ],
+                "headline-lg": [
+                        "DM Sans"
+                ],
+                "headline-lg-mobile": [
+                        "DM Sans"
+                ],
+                "label-sm": [
+                        "DM Sans"
+                ],
+                "label-md": [
+                        "DM Sans"
+                ],
+                "display-lg": [
+                        "DM Sans"
+                ]
+        },
+        "fontSize": {
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0.01em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        /* Custom styles for Webkit Range Slider */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #b7122a; 
+            cursor: pointer;
+            margin-top: -6px; 
+            box-shadow: 0px 0px 10px rgba(183, 18, 42, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e2e2;
+            border-radius: 2px;
+        }
+        .ai-glow-border:focus-within {
+            box-shadow: 0 0 0 2px #b7122a;
+        }
+        
+        /* Removed dark theme specific inputs */
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col pb-20 md:pb-0 selection:bg-primary/20">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-transparent docked full-width top-0 sticky z-50">
+<div class="flex justify-between items-center px-gutter w-full max-w-container-max mx-auto h-20"><div class="flex items-center gap-12 w-full"><div class="flex items-center gap-2 cursor-pointer"><img alt="TastePilot Logo" class="w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0uhhKIocJR4Z8K0c3zGUfSTtAbc5JmwiuM8wzjoe8krVI1uX6rsE4WnxpayP-dbEzLqXEzonzdc5VnUFk0-RllykmO-YsC0giI0xFPc1kP5T0EibF1wtB2_sZGoDwQo3YoP5NZmqUU3of07xI4zpP0_vE7_NyF2m0xrdLmlEC_5M7I-SV7BZCJDInBu_USsHmYYyScnifnkVFyzh62tPibJVNXvjyzmHHbAX9tPmA_NUR9fbKZfkJzva3A" style="width: 160px;"/></div><nav class="hidden md:flex items-center gap-8"><a class="font-label-md text-primary border-b-2 border-primary pb-1" href="#">Home</a><a class="font-label-md text-on-surface-variant hover:text-primary transition-colors pb-1" href="#">About</a></nav><div class="ml-auto flex items-center gap-6"><button aria-label="Notifications" class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">notifications</span></button><button aria-label="Account" class="text-on-surface-variant hover:text-primary transition-colors hidden md:block"><span class="material-symbols-outlined">account_circle</span></button><button aria-label="Menu" class="md:hidden text-on-surface-variant"><span class="material-symbols-outlined">menu</span></button></div></div></div>
+</header>
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-gutter pt-8 md:pt-16 pb-24 relative flex flex-col items-center">
+<!-- Ambient Background Glow -->
+<div class="absolute top-[10%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none z-0"></div>
+<!-- Hero Section -->
+<section class="text-center max-w-4xl mx-auto mb-12 relative z-10 w-full flex flex-col items-center">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-outline-variant bg-surface-container/50 text-on-surface-variant text-[10px] font-semibold tracking-widest uppercase mb-8 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[14px] text-primary">auto_awesome</span>
+    DISCOVER THE FUTURE OF DINING
+</div>
+<div class="flex justify-center items-center gap-1 mb-4">
+<h1 class="font-display-lg text-5xl md:text-6xl text-on-surface tracking-tight font-bold">TastePilot <span class="text-tertiary font-medium">AI</span></h1>
+</div>
+<p class="font-body-md text-on-surface-variant max-w-xl mx-auto mt-4 mb-10">Personalized restaurant discovery powered by <span class="text-on-surface font-medium">AI</span> and real-world dining preferences.</p>
+</section>
+<!-- Search Preferences Form (Card Style) -->
+<section class="bg-surface-container-lowest shadow-xl shadow-black/5 rounded-2xl p-6 md:p-8 border border-outline-variant relative overflow-hidden w-full max-w-3xl mx-auto z-10">
+<form class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+<!-- Area -->
+<div class="flex flex-col gap-2">
+<label class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold" for="area">
+                        AREA
+                    </label>
+<div class="relative rounded-md transition-shadow">
+<select class="w-full px-4 py-3 bg-surface border border-outline-variant rounded-md font-label-md text-label-md text-on-surface focus:outline-none focus:border-primary appearance-none transition-colors" id="area">
+<option>Bellandur</option>
+<option>Indiranagar</option>
+<option>Koramangala</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Minimum Rating -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<label class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold" for="rating">
+                            MINIMUM RATING
+</label>
+<span class="font-label-sm text-label-sm text-on-surface font-bold flex items-center gap-1">2.9 <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span></span>
+</div>
+<div class="py-2 mt-1">
+<input class="w-full appearance-none bg-transparent" id="rating" max="5" min="0" step="0.1" style="background: linear-gradient(to right, rgb(183, 18, 42) 0%, rgb(183, 18, 42) 58%, rgb(226, 226, 226) 58%, rgb(226, 226, 226) 100%);" type="range" value="2.9"/>
+</div>
+</div>
+<!-- Budget Range -->
+<div class="flex flex-col gap-2">
+<label class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold">
+                        BUDGET RANGE
+                    </label>
+<div class="flex bg-transparent gap-2 w-full">
+<button class="flex-1 py-2 text-center font-label-sm text-[13px] rounded-md bg-transparent border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-all" type="button">Budget</button>
+<button class="flex-1 py-2 text-center font-label-sm text-[13px] bg-primary text-on-primary rounded-md font-medium transition-all shadow-sm" type="button">Medium</button>
+<button class="flex-1 py-2 text-center font-label-sm text-[13px] text-on-surface-variant hover:text-on-surface rounded-md transition-all border border-transparent" type="button">Premium</button>
+</div>
+</div>
+<!-- Results Count -->
+<div class="flex flex-col gap-2">
+<label class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold" for="results_count">
+        NUMBER OF RESULTS
+    </label>
+<div class="relative rounded-md transition-shadow">
+<select class="w-full px-4 py-3 bg-surface border border-outline-variant rounded-md font-label-md text-label-md text-on-surface focus:outline-none focus:border-primary appearance-none transition-colors" id="results_count">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option selected="" value="5">5</option>
+<option value="6">6</option>
+<option value="7">7</option>
+<option value="8">8</option>
+<option value="9">9</option>
+<option value="10">10</option>
+<option value="15">15</option>
+<option value="20">20</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Preferred Cuisines -->
+<div class="flex flex-col gap-2 md:col-span-1">
+<label class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold" for="cuisine">
+                        PREFERRED CUISINES
+                    </label>
+<div class="flex items-center rounded-md bg-surface border border-outline-variant focus-within:border-primary transition-colors overflow-hidden">
+<div class="px-3 py-2 text-on-surface-variant text-[13px] whitespace-nowrap bg-transparent">All cuisines</div>
+<input class="w-full px-3 py-2 bg-transparent font-label-sm text-[13px] text-on-surface focus:outline-none placeholder:text-outline" id="cuisine" placeholder="Search or select cuisines..." type="text"/>
+</div>
+</div>
+<!-- Additional Preferences -->
+<div class="flex flex-col gap-2 md:col-span-1">
+<label class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold" for="preferences">
+                        ADDITIONAL PREFERENCES
+                    </label>
+<textarea class="w-full px-4 py-3 bg-surface border border-outline-variant rounded-md font-label-sm text-[13px] text-on-surface focus:outline-none focus:border-primary placeholder:text-outline resize-none transition-colors h-[72px]" id="preferences" placeholder="Describe your perfect dining experience..." rows="2"></textarea>
+</div>
+<!-- Mood / Occasion -->
+<div class="flex flex-col gap-2 md:col-span-2">
+<div class="flex items-center gap-1 group relative">
+<label class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold" for="mood">
+                            MOOD / OCCASION
+    </label>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant cursor-help">info</span>
+<!-- Tooltip -->
+<div class="absolute bottom-full left-0 mb-1 hidden group-hover:block bg-inverse-surface text-inverse-on-surface text-[11px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-20">
+        Recommendations adapt based on dining mood and context
+    </div>
+</div>
+<div class="relative rounded-md transition-shadow">
+<select class="w-full px-4 py-3 bg-surface border border-outline-variant rounded-md font-label-md text-label-md text-on-surface focus:outline-none focus:border-primary appearance-none transition-colors" id="mood">
+<option disabled="" selected="" value="">Choose an occasion (optional)</option>
+<option value="date-night">Date Night ❤️</option>
+<option value="family-dinner">Family Dinner 👨‍👩‍👧</option>
+<option value="quick-lunch">Quick Lunch ⚡</option>
+<option value="friends-hangout">Friends Hangout 🍻</option>
+<option value="work-meeting">Work Meeting 💼</option>
+<option value="solo-dining">Solo Dining 🍽️</option>
+<option value="celebration">Celebration / Birthday 🎉</option>
+<option value="casual-dining">Casual Dining 🍕</option>
+<option value="fine-dining">Fine Dining ✨</option>
+<option value="cafe-chill">Cafe / Chill ☕</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">expand_more</span>
+</div>
+<p class="font-label-sm text-[11px] text-on-surface-variant mt-1">Choose the vibe or occasion for smarter recommendations</p>
+</div>
+<!-- CTA Container -->
+<div class="md:col-span-2 mt-4">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-4 rounded-md shadow-md hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-center gap-2 font-bold" type="button">
+<span class="material-symbols-outlined text-[20px]">auto_awesome</span>Get AI Recommendations
+</button>
+</div>
+</form>
+</section>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="bg-background w-full pt-10 pb-16 md:pb-10 px-gutter flex flex-col items-center gap-6 text-center mt-auto">
+<div class="text-headline-md font-headline-md font-bold mb-1"><img alt="TastePilot Logo" class="h-12 mx-auto mb-1 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0uhhKIocJR4Z8K0c3zGUfSTtAbc5JmwiuM8wzjoe8krVI1uX6rsE4WnxpayP-dbEzLqXEzonzdc5VnUFk0-RllykmO-YsC0giI0xFPc1kP5T0EibF1wtB2_sZGoDwQo3YoP5NZmqUU3of07xI4zpP0_vE7_NyF2m0xrdLmlEC_5M7I-SV7BZCJDInBu_USsHmYYyScnifnkVFyzh62tPibJVNXvjyzmHHbAX9tPmA_NUR9fbKZfkJzva3A"/></div>
+<p class="font-body-md text-on-surface-variant max-w-md mb-2">Smarter restaurant discovery for Bangalore food lovers.</p>
+<div class="w-12 h-px bg-outline-variant my-2"></div>
+<div class="flex flex-wrap justify-center gap-x-6 gap-y-3 max-w-container-max mx-auto">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Koramangala</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Indiranagar</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">HSR Layout</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Whitefield</a>
+<span class="text-outline-variant hidden md:inline">|</span>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Terms</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Privacy</a>
+</div>
+<p class="font-label-sm text-[11px] text-on-surface-variant mt-4">© 2026 TastePilot AI — Helping Bangalore discover better places to eat.</p>
+</footer>
+<!-- BottomNavBar (Shared Component - Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface-container-lowest/95 backdrop-blur-md md:hidden border-t border-outline-variant">
+<!-- Active: Explore -->
+<a class="flex flex-col items-center justify-center text-primary rounded-full px-4 py-1 scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-label-sm text-[10px] mt-1 font-bold">Explore</span>
+</a>
+<!-- Inactive: Saved -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-colors rounded-full" href="#">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="font-label-sm text-[10px] mt-1">Saved</span>
+</a>
+<!-- Inactive: AI Plan -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-colors rounded-full" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="font-label-sm text-[10px] mt-1">AI Plan</span>
+</a>
+<!-- Inactive: Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-colors rounded-full" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-[10px] mt-1">Profile</span>
+</a>
+</nav>
+<!-- Script to simulate slider track fill change -->
+<script>
+        const slider = document.getElementById('rating');
+        
+        function updateSlider() {
+            const val = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+            slider.style.background = `linear-gradient(to right, #b7122a 0%, #b7122a ${val}%, #e2e2e2 ${val}%, #e2e2e2 100%)`;
+        }
+        slider.addEventListener('input', updateSlider);
+        // initial call
+        updateSlider();
+    </script>
+</body></html>

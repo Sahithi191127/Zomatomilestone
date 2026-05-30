@@ -1,0 +1,15 @@
+.env
+.streamlit/secrets.toml
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+data/raw/
+*.egg-info/
+dist/
+build/
+node_modules/
+frontend/node_modules/
+frontend/dist/
