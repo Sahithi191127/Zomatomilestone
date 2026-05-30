@@ -14,4 +14,5 @@ ENV PYTHONPATH=src
 ENV DATA_PATH=data/processed/restaurants.parquet
 
 EXPOSE 8000
-CMD uvicorn app.api.app:app --host 0.0.0.0 --port ${PORT:-8000}
+# Shell form so Railway's $PORT is expanded at runtime
+CMD ["sh", "-c", "uvicorn app.api.app:app --host 0.0.0.0 --port ${PORT:-8000}"]

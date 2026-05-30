@@ -11,6 +11,13 @@ if TYPE_CHECKING:
 _repository: RestaurantRepository | None = None
 
 
+def repository_loaded_count() -> int | None:
+    """Return catalog size if already loaded, else None (for fast health checks)."""
+    if _repository is None:
+        return None
+    return len(_repository)
+
+
 def get_repository(*, refresh: bool = False) -> "RestaurantRepository":
     """Load restaurant data once at startup (or refresh on demand)."""
     from app.data.repository import RestaurantRepository

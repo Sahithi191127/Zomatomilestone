@@ -13,7 +13,12 @@ from app.api.schemas import (
     RecommendationRequest,
     RecommendationResponse,
 )
-from app.dependencies import get_recommendation_use_case, get_repository
+from app.config import settings
+from app.dependencies import (
+    get_recommendation_use_case,
+    get_repository,
+    repository_loaded_count,
+)
 from app.exceptions import PreferenceValidationError
 
 logger = logging.getLogger(__name__)
@@ -23,11 +28,19 @@ router = APIRouter(prefix="/api/v1")
 
 @router.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    try:
-        repo = get_repository()
-        count = len(repo)
-    except Exception:
-        count = 0
+    """
+    Fast liveness check for Railway (must respond before Parquet finishes loading).
+
+    Returns 503 only when the catalog file is missing on disk.
+    """
+    if not settings.data_path.is_file():
+        raise HTTPException(
+            status_code=503,
+            detail=f"Restaurant catalog file not found at {settings.data_path}",
+        )
+    count = repository_loaded_count()
+    if count is None:
+        return HealthResponse(status="ok", restaurants_loaded=0)
     return HealthResponse(status="ok", restaurants_loaded=count)
 
 

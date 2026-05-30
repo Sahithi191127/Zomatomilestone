@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
+import logging
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,15 +15,23 @@ from app.config import PROJECT_ROOT, get_cors_origins, settings
 from app.dependencies import get_repository
 
 IMAGES_DIR = PROJECT_ROOT / "images"
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    try:
-        get_repository()
-    except Exception:
-        pass
+    """Start HTTP immediately; warm Parquet catalog in the background."""
+
+    async def _warm_catalog() -> None:
+        try:
+            repo = await asyncio.to_thread(get_repository)
+            logger.info("Restaurant catalog ready (%s rows)", len(repo))
+        except Exception:
+            logger.exception("Background catalog warm-up failed")
+
+    warm_task = asyncio.create_task(_warm_catalog())
     yield
+    warm_task.cancel()
 
 
 def create_app() -> FastAPI:

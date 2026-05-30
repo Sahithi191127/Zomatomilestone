@@ -39,6 +39,12 @@ def load_restaurants(path: Path | None = None, *, refresh: bool = False) -> list
     """
     path = path or settings.data_path
     if refresh or not path.exists():
+        if not settings.allow_hf_ingest:
+            logger.error(
+                "Restaurant catalog missing at %s (set ALLOW_HF_INGEST=1 to download from HF)",
+                path,
+            )
+            return []
         return ingest_and_persist(path)
     logger.info("Loading restaurants from cache: %s", path)
     return read_parquet(path)

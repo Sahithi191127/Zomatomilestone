@@ -122,7 +122,7 @@ builder = "nixpacks"
 buildCommand = "pip install -r requirements-api.txt"
 
 [deploy]
-startCommand = "uvicorn app.api.app:app --host 0.0.0.0 --port $PORT"
+startCommand = "sh -c 'uvicorn app.api.app:app --host 0.0.0.0 --port ${PORT:-8000}'"
 healthcheckPath = "/api/v1/health"
 healthcheckTimeout = 120
 restartPolicyType = "on_failure"
@@ -133,7 +133,7 @@ If the dashboard overrides this, align manually:
 | Setting | Value |
 |---------|--------|
 | **Root directory** | `/` (repository root) |
-| **Start command** | `uvicorn app.api.app:app --host 0.0.0.0 --port $PORT` |
+| **Start command** | `sh -c 'uvicorn app.api.app:app --host 0.0.0.0 --port ${PORT:-8000}'` (shell required so `$PORT` expands) |
 | **Build** | `pip install -r requirements-api.txt` |
 
 ## 3. Set Railway environment variables

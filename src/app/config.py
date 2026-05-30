@@ -35,6 +35,17 @@ class Settings(BaseSettings):
     cors_origins: str = ""
     # Allow https://*.vercel.app when deploying frontend on Vercel (PR previews)
     cors_allow_vercel_previews: bool = True
+    # Railway/production: never pull ~574MB from Hugging Face unless explicitly enabled
+    allow_hf_ingest: bool = False
+
+    @field_validator("allow_hf_ingest", mode="before")
+    @classmethod
+    def _parse_allow_hf_ingest(cls, value: object) -> bool:
+        if isinstance(value, bool):
+            return value
+        if value is None:
+            return False
+        return str(value).strip().lower() in ("1", "true", "yes", "on")
 
     @field_validator("data_path", mode="before")
     @classmethod

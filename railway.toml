@@ -7,7 +7,8 @@ builder = "nixpacks"
 buildCommand = "pip install -r requirements-api.txt"
 
 [deploy]
-startCommand = "uvicorn app.api.app:app --host 0.0.0.0 --port $PORT"
+# Shell wrapper required: Railway runs startCommand in exec form ($PORT won't expand otherwise)
+startCommand = "sh -c 'uvicorn app.api.app:app --host 0.0.0.0 --port ${PORT:-8000}'"
 healthcheckPath = "/api/v1/health"
-healthcheckTimeout = 120
+healthcheckTimeout = 300
 restartPolicyType = "on_failure"
